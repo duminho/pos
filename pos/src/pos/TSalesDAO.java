@@ -7,9 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import pos.MenuDTO;
-
-public class MenuDAO {
+public class TSalesDAO {
 	
 	String url="jdbc:mysql://localhost:3306/pos";
 	String user="root";
@@ -21,19 +19,16 @@ public class MenuDAO {
 	public ArrayList selectAll() {
 		
 		ArrayList list = new ArrayList();
-		MenuDTO dto=null;//변수의 생존범위: 선언 위치!
+		TSalesDTO dto=null;//변수의 생존범위: 선언 위치!
 		try {
 			//1. 드라이버 설정
 			Class.forName("com.mysql.jdbc.Driver");
 			
 			//2. DB연결(DB명,아이디,패스워드)
 			con = DriverManager.getConnection(url, user, password);
-			
-			
 			//3. SQL문 결정(객체화)
-			String sql ="select * from menu";
+			String sql ="select * from tsales";
 			ps = con.prepareStatement(sql);
-			
 			
 			//4. SQL문 전송
 			rs = ps.executeQuery();
@@ -41,17 +36,15 @@ public class MenuDAO {
 			//SQL문의 결과가 있으면, 받아서 처리
 			
 			while(rs.next()) {
-				dto = new MenuDTO();
-				String name = rs.getString(1);
-				int price = rs.getInt(2);
-				String kind = rs.getString(3);
-				String xp = rs.getString(4);
-				String yp = rs.getString(5);
-				dto.setName(name);
-				dto.setPrice(price);
+				dto = new TSalesDTO();
+				int number = rs.getInt(1);
+				String kind = rs.getString(2);
+				int quantity = rs.getInt(3);
+				int price = rs.getInt(4);
+				dto.setNumber(number);
 				dto.setKind(kind);
-				dto.setXp(xp);
-				dto.setYp(yp);
+				dto.setQuantity(quantity);
+				dto.setPrice(price);
 				
 				list.add(dto);
 			}
@@ -72,7 +65,39 @@ public class MenuDAO {
 		
 		return list;
 	}//select
-	public void insert(MenuDTO dto) throws Exception {
+	public TSalesDTO select(int inputnumber) throws Exception {
+		TSalesDTO dto = null;
+		//1. 드라이버 설정
+		Class.forName("com.mysql.jdbc.Driver");
+		
+		//2. DB연결(DB명,아이디,패스워드)
+		con = DriverManager.getConnection(url, user, password);
+		//3. SQL문 결정(객체화)
+		String sql ="select * from tsales where number =?";
+		ps = con.prepareStatement(sql);
+		ps.setInt(1, inputnumber);
+		
+		//4. SQL문 전송
+		rs = ps.executeQuery();
+		if(rs.next()) {
+			dto = new TSalesDTO();
+			int number = rs.getInt(1);
+			String kind = rs.getString(2);
+			int quantity = rs.getInt(3);
+			int price = rs.getInt(4);
+			dto.setNumber(number);
+			dto.setKind(kind);
+			dto.setQuantity(quantity);
+			dto.setPrice(price);
+		}else {
+			System.out.println("에러발생");
+		}
+		
+		return dto;
+		
+	}
+	
+	public void insert(TSalesDTO dto) throws Exception {
 		
 		//1.드라이버 설정
 		Class.forName("com.mysql.jdbc.Driver");
@@ -81,41 +106,18 @@ public class MenuDAO {
 		con = DriverManager.getConnection(url, user, password);
 		
 		//3.SQL문 결졍
-		String sql="insert into menu values(?,?,?,?,?)";
+		String sql="insert into tsales values(?,?,?,?)";
 		ps = con.prepareStatement(sql);
-		ps.setString(1, dto.getName());
-		ps.setInt(2, dto.getPrice());
-		ps.setString(3, dto.getKind());
-		ps.setString(4, dto.getXp());
-		ps.setString(5, dto.getYp());
+		ps.setInt(1, dto.getNumber());
+		ps.setString(2, dto.getKind());
+		ps.setInt(3, dto.getQuantity());
+		ps.setInt(4, dto.getPrice());
 		
 		//4.SQL전송
 		ps.executeUpdate();
 		ps.close();
 	}
-//	public void update(String etc,String id) throws Exception {
-//		
-//		//1.드라이버 설정
-//		Class.forName("com.mysql.jdbc.Driver");
-//		System.out.println("1.드라이버 설정 OK....");
-//						
-//		//2.DB연결(DB명,id,pw)
-//		con = DriverManager.getConnection(url, user, password);
-//		System.out.println("2.DB연결 OK.....");
-//		
-//		//3.SQL문 결졍
-//		String sql="update menu set etc=? where name=?";
-//		ps = con.prepareStatement(sql);
-//		ps.setString(1, etc);
-//		ps.setString(2, id);
-//		System.out.println("3.SQl문 결정 OK...");
-//		
-//		//4.SQL전송
-//		ps.executeUpdate();
-//		System.out.println("4.SQL문 전송 OK....");
-//		ps.close();
-//	}
-	public void delete(String name) throws Exception {
+	public void delete(int number) throws Exception {
 		
 		//1.드라이버 설정
 		Class.forName("com.mysql.jdbc.Driver");
@@ -124,9 +126,9 @@ public class MenuDAO {
 		con = DriverManager.getConnection(url, user, password);
 		
 		//3.SQL문 결졍
-		String sql="delete from menu where id = ?";
+		String sql="delete from tsales where number = ?";
 		ps = con.prepareStatement(sql);
-		ps.setString(1, name);
+		ps.setInt(1, number);
 		
 		//4.SQL전송
 		ps.executeUpdate();
